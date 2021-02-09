@@ -1,5 +1,5 @@
 import React from "react";
-import HomeScreen from "./components/HomeScreen";
+import AuthorScreen from "./components/AuthorScreen";
 import TestScreen from "./components/TestScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
@@ -12,7 +12,7 @@ interface Icon {
 }
 
 export type ParamList = {
-  General: Icon | undefined;
+  Author: Icon | undefined;
   Test: Icon | undefined;
 };
 
@@ -29,7 +29,7 @@ export default function App() {
         })}
         tabBarOptions={styles}
       >
-        <Tab.Screen name="General" component={HomeScreen} initialParams={{ name: "person-outline", size: 24, color: "black" }} />
+        <Tab.Screen name="Author" component={AuthorScreen} initialParams={{ name: "person-outline", size: 24, color: "black" }} />
         <Tab.Screen name="Test" component={TestScreen} initialParams={{ name: "leaf-outline", size: 24, color: "black" }} />
       </Tab.Navigator>
     </NavigationContainer>

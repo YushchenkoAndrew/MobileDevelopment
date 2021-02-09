@@ -3,12 +3,12 @@ import { StyleSheet, View, Text, Button } from "react-native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { ParamList } from "../App";
 
-interface HomeScreenProps {
+interface AuthorScreenProps {
   name?: string;
   navigation?: BottomTabNavigationProp<ParamList>;
 }
 
-export default class HomeScreen extends React.Component<HomeScreenProps> {
+export default class HomeScreen extends React.Component<AuthorScreenProps> {
   render() {
     return (
       <View style={styles.container}>
