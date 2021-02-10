@@ -7,6 +7,9 @@ interface Points<T> {
   [name: string]: T;
 }
 
+type Marks = Points<number[]>;
+type Mark = Points<number>;
+
 // Given Data
 const studentsStr =
   "Дмитренко Олександр - ІП-84; Матвійчук Андрій - ІВ-83; Лесик Сергій - ІО-82; Ткаченко Ярослав - ІВ-83; Аверкова Анастасія - ІО-83; Соловйов Даніїл - ІО-83; Рахуба Вероніка - ІО-81; Кочерук Давид - ІВ-83; Лихацька Юлія - ІВ-82; Головенець Руслан - ІВ-83; Ющенко Андрій - ІО-82; Мінченко Володимир - ІП-83; Мартинюк Назар - ІО-82; Базова Лідія - ІВ-81; Снігурець Олег - ІВ-81; Роман Олександр - ІО-82; Дудка Максим - ІО-81; Кулініч Віталій - ІВ-81; Жуков Михайло - ІП-83; Грабко Михайло - ІВ-81; Іванов Володимир - ІО-81; Востриков Нікіта - ІО-82; Бондаренко Максим - ІВ-83; Скрипченко Володимир - ІВ-82; Кобук Назар - ІО-81; Дровнін Павло - ІВ-83; Тарасенко Юлія - ІО-82; Дрозд Світлана - ІВ-81; Фещенко Кирил - ІО-82; Крамар Віктор - ІО-83; Іванов Дмитро - ІВ-82";
@@ -51,11 +54,11 @@ function randomValue(maxValue: number): number {
   }
 }
 
-function generateMarks(studentGroups: Students<string[]>): Students<Points<number[]>> {
-  let studentPoints = {} as Students<Points<number[]>>;
+function generateMarks(studentGroups: Students<string[]>): Students<Marks> {
+  let studentPoints = {} as Students<Marks>;
 
   for (let group in studentGroups) {
-    studentPoints[group] = {} as Points<number[]>;
+    studentPoints[group] = {} as Marks;
 
     for (let student of studentGroups[group]) {
       studentPoints[group][student] = maxPoints.map((item) => randomValue(item));
@@ -69,11 +72,11 @@ function generateMarks(studentGroups: Students<string[]>): Students<Points<numbe
 // ################################# TASK 3 ##########################################
 // ###################################################################################
 
-function sumStudentMarks(students: Students<Points<number[]>>): Students<Points<number>> {
-  let result = {} as Students<Points<number>>;
+function sumStudentMarks(students: Students<Marks>): Students<Mark> {
+  let result = {} as Students<Mark>;
 
   for (let group in students) {
-    result[group] = {} as Points<number>;
+    result[group] = {} as Mark;
 
     for (let name in students[group]) result[group][name] = students[group][name].reduce((curr, acc) => curr + acc);
   }
@@ -85,7 +88,7 @@ function sumStudentMarks(students: Students<Points<number[]>>): Students<Points<
 // ################################# TASK 4 ##########################################
 // ###################################################################################
 
-function groupAverageMark(students: Students<Points<number>>): Students<number> {
+function groupAverageMark(students: Students<Mark>): Students<number> {
   let result = {} as Students<number>;
 
   for (let group in students) {
@@ -99,7 +102,7 @@ function groupAverageMark(students: Students<Points<number>>): Students<number> 
 // ###################################################################################
 // ################################# TASK 5 ##########################################
 // ###################################################################################
-function filterStudents(students: Students<Points<number>>): Students<string[]> {
+function filterStudents(students: Students<Mark>): Students<string[]> {
   let result = {} as Students<string[]>;
 
   for (let group in students) {
