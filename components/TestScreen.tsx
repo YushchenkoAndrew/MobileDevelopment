@@ -2,6 +2,10 @@ import * as React from "react";
 import { StyleSheet, View, Text, Image, Button } from "react-native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { ParamList } from "../App";
+import test from "../src/Contents";
+
+// FIXME: Temporary code
+test();
 
 interface TestScreenProps {
   name?: string;
