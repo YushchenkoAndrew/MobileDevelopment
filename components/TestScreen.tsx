@@ -3,9 +3,15 @@ import { StyleSheet, View, Text, Image, Button } from "react-native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { ParamList } from "../App";
 import test from "../src/Contents";
+import Coordinate from "../src/CoordinateAY";
 
 // FIXME: Temporary code
 test();
+
+// TODO: Add some testing
+let coords = new Coordinate({ degree: 17, minutes: 30, seconds: 35.8344, compass: "S" });
+console.log(coords.toString());
+console.log(coords.toStringDecimal());
 
 interface TestScreenProps {
   name?: string;
