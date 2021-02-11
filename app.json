@@ -4,7 +4,7 @@
     "slug": "MobileDevelopment",
     "version": "1.0.0",
     "description": "Author - Andrew Y, Organization Identifier - ua.kpi.comsys.IO-8229",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icons/Icon-72.png",
     "splash": {
       "image": "./assets/splash.png",
