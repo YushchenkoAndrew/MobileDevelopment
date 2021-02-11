@@ -9,9 +9,12 @@ import Coordinate from "../src/CoordinateAY";
 test();
 
 // TODO: Add some testing
-let coords = new Coordinate({ degree: 17, minutes: 30, seconds: 35.8344, compass: "S" });
-console.log(coords.toString());
-console.log(coords.toStringDecimal());
+let coordsA = new Coordinate({ degree: 17, minutes: 30, seconds: 35.8344, compass: "S" });
+let coordsB = new Coordinate({});
+
+console.log(coordsA.toString());
+console.log(coordsA.toStringDecimal());
+console.log(coordsA.calcMiddle(coordsB)?.toString());
 
 interface TestScreenProps {
   name?: string;
