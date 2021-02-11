@@ -1,9 +1,10 @@
-import * as React from "react";
-import { StyleSheet, View, Text, Image, Button } from "react-native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { ParamList } from "../App";
-import test from "../src/Contents";
-import Coordinate from "../src/CoordinateAY";
+import * as React from "react";
+import { Button, Image, StyleSheet, Text, View } from "react-native";
+import SwitchSelector from "react-native-switch-selector";
+import { ParamList } from "../../App";
+import test from "../../src/Contents";
+import Coordinate from "../../src/CoordinateAY";
 
 // FIXME: Temporary code
 test();
@@ -52,12 +53,19 @@ export default class TestScreen extends React.Component<TestScreenProps> {
         <Text style={styles.text}>Count: {this.state.count}</Text>
         <Text style={{ ...styles.text, color: "#F00" }}>What time is it?</Text>
         <Text style={styles.text}>It's {this.state.date.toLocaleTimeString()}</Text>
-        <Image source={require("../assets/icons/Icon-144.png")} />
+        <Image source={require("../../assets/icons/Icon-144.png")} />
         <Button title="Count" onPress={() => this.handleClick()} />
+        <SwitchSelector options={options} initial={1} borderColor="#AAA" hasPadding onPress={(value) => console.log(value)} />
       </View>
     );
   }
 }
+
+const options = [
+  { label: "01:00", value: "1" },
+  { label: "01:30", value: "1.5" },
+  { label: "02:00", value: "2" },
+];
 
 const styles = StyleSheet.create({
   container: {

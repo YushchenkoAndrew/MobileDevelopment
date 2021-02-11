@@ -1,7 +1,7 @@
-import * as React from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { ParamList } from "../App";
+import * as React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { ParamList } from "../../App";
 
 interface AuthorScreenProps {
   name?: string;
