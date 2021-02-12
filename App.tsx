@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { BottomTabBarOptions, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
 import AuthorScreen from "./components/Screen/AuthorScreen";
@@ -26,7 +26,10 @@ export default function App() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused }) => {
-            return <Ionicons {...route.params} color={focused ? styles.activeTintColor : (route.params as Icon).color} />;
+            if (!focused) return <Ionicons {...route.params} />;
+
+            const { name, size } = route.params ?? { name: "help", size: 24 };
+            return <Ionicons name={name.split("-").slice(0, -1).join("-")} size={size} color={styles.activeTintColor} />;
           },
         })}
         tabBarOptions={styles}
@@ -39,7 +42,7 @@ export default function App() {
   );
 }
 
-const styles = {
+const styles: BottomTabBarOptions = {
   activeTintColor: "#ec7063",
   inactiveTintColor: "gray",
 };
