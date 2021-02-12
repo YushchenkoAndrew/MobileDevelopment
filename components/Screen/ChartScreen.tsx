@@ -1,14 +1,10 @@
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import "expo-screen-orientation";
+import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import SwitchSelector, { ISwitchSelectorProps } from "react-native-switch-selector";
 import { VictoryChart, VictoryLine, VictoryPie, VictoryTheme } from "victory-native";
 import { ParamList } from "../../App";
-
-interface ChartScreenProps {
-  navigation?: BottomTabNavigationProp<ParamList>;
-}
 
 // Given Function by task
 const func = (x: number) => x * x * x;
@@ -20,8 +16,47 @@ const pieData = [
   { y: 5, label: "5%", color: "#d1c4e9" },
 ];
 
+interface ChartScreenProps {
+  navigation?: BottomTabNavigationProp<ParamList>;
+}
+
+interface ChartScreenStates {
+  chart: Chart;
+  orientation: Orientation;
+}
+
+interface Chart {
+  name: ChartName;
+  size: number;
+  radius: number;
+}
+
+type Orientation = "landscape" | "portrait";
+type ChartName = "line" | "pie";
+
+const { width, height } = Dimensions.get("screen");
+const size = width < height ? width : height; // Get the min size
+
 export default class ChartScreen extends React.Component<ChartScreenProps> {
-  state = { chart: "line" };
+  state = { chart: { name: "line", size, radius: 100 }, orientation: "portrait" } as ChartScreenStates;
+
+  componentDidMount() {
+    ScreenOrientation.getOrientationAsync().then((orientation) => this.setState({ ...this.state, ...this.getOrientationProps(orientation) }));
+
+    ScreenOrientation.addOrientationChangeListener((rotationEvent) =>
+      this.setState({ ...this.state, ...this.getOrientationProps(rotationEvent.orientationInfo.orientation) })
+    );
+  }
+
+  componentWillUnmount() {
+    ScreenOrientation.removeOrientationChangeListeners();
+  }
+
+  getOrientationProps(screenOrientation: ScreenOrientation.Orientation): ChartScreenStates {
+    let orientation = (screenOrientation == ScreenOrientation.Orientation.PORTRAIT_UP ? "portrait" : "landscape") as Orientation;
+    let chart = { ...this.state.chart, ...(orientation == "landscape" ? { size: size - 50, radius: 80 } : { size, radius: 100 }) };
+    return { chart, orientation };
+  }
 
   iterFunc(func: Function, min: number, max: number, step: number) {
     let coords = [];
@@ -29,26 +64,29 @@ export default class ChartScreen extends React.Component<ChartScreenProps> {
     return coords;
   }
 
-  onClick(chart: string) {
+  onClick(name: ChartName) {
     return new Promise((resolve, reject) => {
-      resolve(this.setState({ ...this.state, chart }));
+      resolve(this.setState({ ...this.state, chart: { ...this.state.chart, name } }));
     });
   }
 
   render() {
     return (
-      <View style={styles.components}>
+      <View style={{ ...styles.components, flexDirection: this.state.orientation == "portrait" ? "column" : "row" }}>
         <SwitchSelector {...switchProps} onPress={this.onClick.bind(this)} />
-        {this.state.chart == "line" ? (
-          <VictoryChart theme={VictoryTheme.material}>
-            <VictoryLine data={this.iterFunc(func, -3, 3, 0.2)} animate={{ duration: 2000 }} />
+        {this.state.chart.name == "line" ? (
+          <VictoryChart theme={VictoryTheme.material} width={this.state.chart.size} height={this.state.chart.size}>
+            <VictoryLine data={this.iterFunc(func, -3, 3, 0.2)} animate={{ duration: 500 }} />
           </VictoryChart>
         ) : (
           <VictoryPie
             colorScale={pieData.map(({ color }) => color)}
             padAngle={() => 2}
-            innerRadius={100}
+            innerRadius={this.state.chart.radius}
+            width={this.state.chart.size}
+            height={this.state.chart.size}
             data={pieData.map(({ y, label }) => ({ y, label }))}
+            animate={{ duration: 800 }}
           />
         )}
       </View>
@@ -64,6 +102,7 @@ const options = [
 const styles = StyleSheet.create({
   components: {
     flex: 1,
+    paddingTop: 20,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
