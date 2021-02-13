@@ -1,21 +1,7 @@
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import * as React from "react";
 import { Button, Image, StyleSheet, Text, View } from "react-native";
-import SwitchSelector from "react-native-switch-selector";
 import { ParamList } from "../../App";
-import test from "../../src/Contents";
-import Coordinate from "../../src/CoordinateAY";
-
-// FIXME: Temporary code
-test();
-
-// TODO: Add some testing
-let coordsA = new Coordinate({ degree: 17, minutes: 30, seconds: 35.8344, compass: "S" });
-let coordsB = new Coordinate({});
-
-console.log(coordsA.toString());
-console.log(coordsA.toStringDecimal());
-console.log(coordsA.calcMiddle(coordsB)?.toString());
 
 interface TestScreenProps {
   name?: string;
@@ -55,17 +41,10 @@ export default class TestScreen extends React.Component<TestScreenProps> {
         <Text style={styles.text}>It's {this.state.date.toLocaleTimeString()}</Text>
         <Image source={require("../../assets/icons/Icon-144.png")} />
         <Button title="Count" onPress={() => this.handleClick()} />
-        <SwitchSelector options={options} initial={1} borderColor="#AAA" hasPadding onPress={(value) => console.log(value)} />
       </View>
     );
   }
 }
-
-const options = [
-  { label: "01:00", value: "1" },
-  { label: "01:30", value: "1.5" },
-  { label: "02:00", value: "2" },
-];
 
 const styles = StyleSheet.create({
   container: {
