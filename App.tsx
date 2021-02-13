@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
 import AuthorScreen from "./components/Screen/AuthorScreen";
 import ChartScreen from "./components/Screen/ChartScreen";
+import LibraryScreen from "./components/Screen/LibraryScreen";
 import TestScreen from "./components/Screen/TestScreen";
 
 interface Icon {
@@ -15,6 +16,7 @@ interface Icon {
 export type ParamList = {
   Author: Icon | undefined;
   Chart: Icon | undefined;
+  Library: Icon | undefined;
   Test: Icon | undefined;
 };
 
@@ -36,6 +38,7 @@ export default function App() {
       >
         <Tab.Screen name="Author" component={AuthorScreen} initialParams={{ name: "person-outline", size: 24, color: "black" }} />
         <Tab.Screen name="Chart" component={ChartScreen} initialParams={{ name: "bar-chart-outline", size: 24, color: "black" }} />
+        <Tab.Screen name="Library" component={LibraryScreen} initialParams={{ name: "book-outline", size: 24, color: "black" }} />
         <Tab.Screen name="Test" component={TestScreen} initialParams={{ name: "leaf-outline", size: 24, color: "black" }} />
       </Tab.Navigator>
     </NavigationContainer>
