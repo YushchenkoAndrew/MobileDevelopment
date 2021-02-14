@@ -1,8 +1,12 @@
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import * as React from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ParamList } from "../../App";
 import { BookCover, Images } from "../../assets/index";
 
-interface LibraryScreenProps {}
+interface LibraryScreenProps {
+  navigation?: BottomTabNavigationProp<ParamList>;
+}
 
 type Book = {
   title: string;
@@ -13,29 +17,39 @@ type Book = {
 
 export default class LibraryScreen extends React.Component<LibraryScreenProps> {
   books: Book[];
+  unsubscribe: ((() => void) | undefined)[] = [];
 
   constructor(props: LibraryScreenProps) {
     super(props);
     this.books = require("../../assets/BooksList.json").books.map((item: Book, key: number) => ({
-      key,
+      key: `${key}`,
       ...item,
       image: item.image.split(".")[0] || null,
     }));
   }
 
+  componentDidMount() {
+    this.unsubscribe.push(this.props.navigation?.addListener("focus", () => StatusBar.setHidden(true)));
+    this.unsubscribe.push(this.props.navigation?.addListener("blur", () => StatusBar.setHidden(false)));
+  }
+
+  componentWillUnmount() {
+    for (let func of this.unsubscribe) if (func) func();
+  }
+
   render() {
     return (
-      <View>
+      <View style={{ backgroundColor: "#e9eaef" }}>
         <FlatList
           data={this.books}
           renderItem={({ item }) => {
             return (
               <View style={styles.item}>
-                {item.image && <Image source={Images.BookCover[item.image]} style={styles.image} />}
-                <View>
+                <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Images.BookCover[item.image]} style={styles.image} />}</View>
+                <View style={styles.information}>
                   <Text style={styles.title}>{item.title}</Text>
-                  <Text>{item.subtitle}</Text>
-                  <Text>{item.price}</Text>
+                  <Text style={styles.description}>{item.subtitle}</Text>
+                  <Text style={styles.price}>{item.price}</Text>
                 </View>
               </View>
             );
@@ -58,22 +72,53 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
-    borderBottomColor: "gray",
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderRadius: 5,
+
+    marginRight: 10,
+    marginLeft: 10,
+    marginTop: 2,
+    marginBottom: 3,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+
+    elevation: 4,
+  },
+  information: {
+    flex: 1,
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    alignContent: "stretch",
+
+    padding: 20,
+
+    height: "100%",
   },
 
   title: {
-    // width: 100,
-    // padding: 10,
-    // fontSize: 10,
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  description: {
+    color: "gray",
+    fontStyle: "italic",
+  },
+  price: {
+    color: "#bf4040",
+    fontWeight: "bold",
+    alignSelf: "flex-end",
   },
 
   image: {
     flex: 1,
-    // padding: 10,
-    // margin: 20,
-    aspectRatio: 1,
-    resizeMode: "contain",
+    resizeMode: "cover",
+    width: undefined,
+    height: undefined,
   },
 });
