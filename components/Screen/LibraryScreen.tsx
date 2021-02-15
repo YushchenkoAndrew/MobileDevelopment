@@ -1,6 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
 import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
 import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ActionButton from "react-native-action-button";
 import Assets, { BookCover, BookInfo } from "../../assets/index";
 import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
 
@@ -13,9 +15,16 @@ export const Stack = createStackNavigator<ParamList>();
 
 export default function Library() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Library" component={LibraryScreen} />
-      <Stack.Screen name="BookInfo" component={BookInfoScreen} />
+    <Stack.Navigator>
+      <Stack.Screen name="Library" component={LibraryScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="BookInfo"
+        component={BookInfoScreen}
+        options={({ route }) => ({
+          headerTitle: route.params.title,
+          headerBackImage: () => <Ionicons name="return-up-back-outline" size={32} color="#3795fe" />,
+        })}
+      />
     </Stack.Navigator>
   );
 }
@@ -74,6 +83,7 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
             );
           }}
         />
+        <ActionButton buttonColor="rgba(231,76,60,1)" onPress={() => console.log("Pressed Add")} />
       </View>
     );
   }
@@ -141,3 +151,26 @@ const styles = StyleSheet.create({
     height: undefined,
   },
 });
+
+const actions = [
+  {
+    text: "Accessibility",
+    name: "bt_accessibility",
+    position: 2,
+  },
+  {
+    text: "Language",
+    name: "bt_language",
+    position: 1,
+  },
+  {
+    text: "Location",
+    name: "bt_room",
+    position: 3,
+  },
+  {
+    text: "Video",
+    name: "bt_videocam",
+    position: 4,
+  },
+];
