@@ -1,30 +1,47 @@
-import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
-import { FlatList, Image, StatusBar, StyleSheet, Text, View } from "react-native";
-import { ParamList } from "../../App";
-import { BookCover, Images } from "../../assets/index";
+import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Assets, { BookCover, BookInfo } from "../../assets/index";
+import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
+
+export type ParamList = {
+  Library: undefined;
+  BookInfo: BookInfoType;
+};
+
+export const Stack = createStackNavigator<ParamList>();
+
+export default function Library() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Library" component={LibraryScreen} />
+      <Stack.Screen name="BookInfo" component={BookInfoScreen} />
+    </Stack.Navigator>
+  );
+}
 
 interface LibraryScreenProps {
-  navigation?: BottomTabNavigationProp<ParamList>;
+  navigation: StackNavigationProp<ParamList>;
 }
 
 type Book = {
   title: string;
   subtitle: string;
+  isbn13: BookInfo;
   price: string;
-  image: BookCover;
+  image: BookCover | null;
 };
 
-export default class LibraryScreen extends React.Component<LibraryScreenProps> {
+export class LibraryScreen extends React.Component<LibraryScreenProps> {
   books: Book[];
   unsubscribe: ((() => void) | undefined)[] = [];
 
   constructor(props: LibraryScreenProps) {
     super(props);
-    this.books = require("../../assets/BooksList.json").books.map((item: Book, key: number) => ({
+    this.books = require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
       key: `${key}`,
       ...item,
-      image: item.image.split(".")[0] || null,
+      image: item.image?.split(".")?.[0] || null,
     }));
   }
 
@@ -44,14 +61,16 @@ export default class LibraryScreen extends React.Component<LibraryScreenProps> {
           data={this.books}
           renderItem={({ item }) => {
             return (
-              <View style={styles.item}>
-                <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Images.BookCover[item.image]} style={styles.image} />}</View>
-                <View style={styles.information}>
-                  <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.description}>{item.subtitle}</Text>
-                  <Text style={styles.price}>{item.price}</Text>
+              <TouchableOpacity onPress={() => Assets.BookInfo[item.isbn13] && this.props.navigation?.navigate("BookInfo", Assets.BookInfo[item.isbn13])}>
+                <View style={styles.item}>
+                  <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Assets.BookCover[item.image]} style={styles.image} />}</View>
+                  <View style={styles.information}>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={styles.description}>{item.subtitle}</Text>
+                    <Text style={styles.price}>{item.price}</Text>
+                  </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />
