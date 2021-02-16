@@ -10,7 +10,7 @@ import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
 export type ParamList = {
   Library: undefined;
   BookInfo: BookInfoType;
-  AddBook: undefined;
+  AddBook: Book[];
 };
 
 export const Stack = createStackNavigator<ParamList>();
@@ -36,7 +36,7 @@ interface LibraryScreenProps {
   navigation: StackNavigationProp<ParamList>;
 }
 
-type Book = {
+export type Book = {
   title: string;
   subtitle: string;
   isbn13: BookInfo;
@@ -89,7 +89,7 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
         <FloatingAction
           actions={actions}
           color="#fee2e1"
-          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook")}
+          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook", this.books)}
           floatingIcon={<Ionicons name="settings-outline" size={24} color="#e93b2c" />}
         />
       </View>
