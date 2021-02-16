@@ -2,13 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
 import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import ActionButton from "react-native-action-button";
+import { FloatingAction } from "react-native-floating-action";
 import Assets, { BookCover, BookInfo } from "../../assets/index";
+import AddBook from "./AddBookScreen";
 import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
 
 export type ParamList = {
   Library: undefined;
   BookInfo: BookInfoType;
+  AddBook: undefined;
 };
 
 export const Stack = createStackNavigator<ParamList>();
@@ -25,6 +27,7 @@ export default function Library() {
           headerBackImage: () => <Ionicons name="return-up-back-outline" size={32} color="#3795fe" />,
         })}
       />
+      <Stack.Screen name="AddBook" component={AddBook} />
     </Stack.Navigator>
   );
 }
@@ -83,7 +86,12 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
             );
           }}
         />
-        <ActionButton buttonColor="rgba(231,76,60,1)" onPress={() => console.log("Pressed Add")} />
+        <FloatingAction
+          actions={actions}
+          color="#fee2e1"
+          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook")}
+          floatingIcon={<Ionicons name="settings-outline" size={24} color="#e93b2c" />}
+        />
       </View>
     );
   }
@@ -154,23 +162,17 @@ const styles = StyleSheet.create({
 
 const actions = [
   {
-    text: "Accessibility",
-    name: "bt_accessibility",
-    position: 2,
-  },
-  {
-    text: "Language",
-    name: "bt_language",
+    text: "Add",
+    name: "add",
+    color: "#e6edfe",
+    icon: <Ionicons name="add-outline" size={24} color="#3779f4" />,
     position: 1,
   },
   {
-    text: "Location",
-    name: "bt_room",
-    position: 3,
-  },
-  {
-    text: "Video",
-    name: "bt_videocam",
-    position: 4,
+    text: "Search",
+    name: "search",
+    color: "#e6edfe",
+    icon: <Ionicons name="search-outline" size={24} color="#3779f4" />,
+    position: 2,
   },
 ];
