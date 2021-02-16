@@ -3,14 +3,14 @@ import { createStackNavigator, StackNavigationProp } from "@react-navigation/sta
 import * as React from "react";
 import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FloatingAction } from "react-native-floating-action";
-import Assets, { BookCover, BookInfo } from "../../assets/index";
+import Assets, { BookCover, BookId, BookInfo } from "../../assets/index";
 import AddBook from "./AddBookScreen";
 import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
 
 export type ParamList = {
   Library: undefined;
   BookInfo: BookInfoType;
-  AddBook: Book[];
+  AddBook: { books: Book[] };
 };
 
 export const Stack = createStackNavigator<ParamList>();
@@ -37,24 +37,28 @@ interface LibraryScreenProps {
 }
 
 export type Book = {
+  key: string;
   title: string;
   subtitle: string;
-  isbn13: BookInfo;
+  isbn13?: BookInfo;
   price: string;
-  image: BookCover | null;
+  image?: BookCover;
 };
 
 export class LibraryScreen extends React.Component<LibraryScreenProps> {
-  books: Book[];
+  state: { books: Book[] };
   unsubscribe: ((() => void) | undefined)[] = [];
 
   constructor(props: LibraryScreenProps) {
     super(props);
-    this.books = require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
-      key: `${key}`,
-      ...item,
-      image: item.image?.split(".")?.[0] || null,
-    }));
+    this.state = {
+      books: require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
+        key: `${key}`,
+        ...item,
+        isbn13: BookId.indexOf(item.isbn13) != -1 ? item.isbn13 : undefined,
+        image: item.image?.split(".")?.[0] || undefined,
+      })),
+    };
   }
 
   componentDidMount() {
@@ -70,10 +74,12 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
     return (
       <View style={{ backgroundColor: "#e9eaef" }}>
         <FlatList
-          data={this.books}
+          data={this.state.books}
           renderItem={({ item }) => {
             return (
-              <TouchableOpacity onPress={() => Assets.BookInfo[item.isbn13] && this.props.navigation?.navigate("BookInfo", Assets.BookInfo[item.isbn13])}>
+              <TouchableOpacity
+                onPress={() => item.isbn13 && Assets.BookInfo[item.isbn13] && this.props.navigation?.navigate("BookInfo", Assets.BookInfo[item.isbn13])}
+              >
                 <View style={styles.item}>
                   <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Assets.BookCover[item.image]} style={styles.image} />}</View>
                   <View style={styles.information}>
@@ -89,7 +95,7 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
         <FloatingAction
           actions={actions}
           color="#fee2e1"
-          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook", this.books)}
+          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook", { books: this.state.books })}
           floatingIcon={<Ionicons name="settings-outline" size={24} color="#e93b2c" />}
         />
       </View>
