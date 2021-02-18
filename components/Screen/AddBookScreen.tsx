@@ -1,14 +1,11 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, DeviceEventEmitter, StyleSheet, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import CustomTextInput from "../CustomTextInput";
 import { Book, ParamList } from "./LibraryScreen";
-
-enum Color {
-  Focused = "#F00",
-  Error = "#F00",
-  Default = "black",
-}
 
 interface AddBookProps {
   navigation: StackNavigationProp<ParamList>;
@@ -16,63 +13,70 @@ interface AddBookProps {
 }
 
 export default class AddBook extends React.Component<AddBookProps> {
-  state = { title: { value: "", color: Color.Default }, subtitle: { value: "", color: Color.Default }, price: { value: "", color: Color.Default } };
+  state = { title: "", subtitle: "", price: "", error: { title: false, price: false }, orientation: ScreenOrientation.Orientation.UNKNOWN };
+
+  constructor(props: AddBookProps) {
+    super(props);
+
+    // React.useLayoutEffect(() => {
+    //   this.props.navigation.setOptions({
+    //     books: () => console.log("WHat")
+    //   })
+    // }, [this.props.navigation, this])
+  }
+
+  componentDidMount() {
+    ScreenOrientation.getOrientationAsync().then((orientation) => this.setState({ ...this.state, orientation }));
+
+    ScreenOrientation.addOrientationChangeListener((rotationEvent) => this.setState({ ...this.state, orientation: rotationEvent.orientationInfo.orientation }));
+  }
+
+  componentWillUnmount() {
+    ScreenOrientation.removeOrientationChangeListeners();
+  }
 
   getBookElements(key: number): Book {
     return {
       key: `${key}`,
-      title: this.state.title.value,
-      subtitle: this.state.subtitle.value,
-      price: this.state.price.value,
+      title: this.state.title,
+      subtitle: this.state.subtitle,
+      price: "$" + this.state.price,
     };
   }
 
   onSubmit() {
-    const { books } = this.props.route.params;
-    const data = this.getBookElements(books.length);
+    const { key } = this.props.route.params;
+    const data = this.getBookElements(key);
 
-    if (!data.title || !data.key) {
-      this.setState({
-        ...this.state,
-        title: { ...this.state.title, ...(data.title ? {} : { color: Color.Error }) },
-        price: { ...this.state.price, ...(data.price ? {} : { color: Color.Error }) },
-      });
+    if (!data.title || !data.price.slice(1)) {
+      this.setState({ ...this.state, error: { title: !data.title, price: !data.price.slice(1) } });
       return;
     }
 
-    books.push(data);
+    DeviceEventEmitter.emit("Library.addBook", data);
     this.props.navigation.goBack();
   }
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text>Title</Text>
-        <TextInput
-          style={{ ...styles.textInput, borderColor: this.state.title.color }}
-          placeholder="Type book's Title"
-          value={this.state.title.value}
-          onChangeText={(value) => this.setState({ ...this.state, title: { ...this.state.title, value } })}
-        />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={{ ...styles.container, ...{ flexDirection: this.state.orientation == ScreenOrientation.Orientation.PORTRAIT_UP ? "column" : "row" } }}>
+          <View>
+            <CustomTextInput name="Title" callback={(title: string) => this.setState({ ...this.state, title })} error={this.state.error.title} />
+            <CustomTextInput name="Subtitle" callback={(subtitle: string) => this.setState({ ...this.state, subtitle })} />
+            <CustomTextInput
+              name="Price"
+              keyboardType="numeric"
+              callback={(price: string) => this.setState({ ...this.state, price })}
+              error={this.state.error.price}
+            />
+          </View>
 
-        <Text>Subtitle</Text>
-        <TextInput
-          style={{ ...styles.textInput, borderColor: this.state.subtitle.color }}
-          placeholder="Type book's Subtitle (optional)"
-          value={this.state.subtitle.value}
-          onChangeText={(value) => this.setState({ ...this.state, subtitle: { ...this.state.subtitle, value } })}
-        />
-
-        <Text>Price</Text>
-        <TextInput
-          style={{ ...styles.textInput, borderColor: this.state.price.color }}
-          placeholder="Set the Price"
-          keyboardType="numeric"
-          value={this.state.price.value}
-          onChangeText={(value) => this.setState({ ...this.state, price: { ...this.state.price, value: (value[0] == "$" ? "" : "$") + value } })}
-        />
-        <Button title="Submit" onPress={this.onSubmit.bind(this)} />
-      </View>
+          <View style={styles.button}>
+            <Button title="Submit" onPress={this.onSubmit.bind(this)} />
+          </View>
+        </View>
+      </ScrollView>
     );
   }
 }
@@ -84,20 +88,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
-  textInput: {
-    // flex: 1,
-
-    justifyContent: "flex-end",
-    // height: 40,
-
-    borderWidth: 2,
-    borderRadius: 40,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    // border
-
-    margin: 10,
-    fontSize: 15,
+  button: {
+    padding: 30,
   },
 });
