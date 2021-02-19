@@ -12,7 +12,7 @@ interface CustomTextInputProps {
   error?: boolean;
 }
 
-export default class CustomTextInput extends React.Component<CustomTextInputProps> {
+export default class CustomTextInput extends React.PureComponent<CustomTextInputProps> {
   state = { value: "", focus: false };
   animatedFocus = new Animated.Value(0);
 

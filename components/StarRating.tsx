@@ -7,7 +7,7 @@ interface StarRatingProps {
   size: number;
 }
 
-export default class StarRating extends React.Component<StarRatingProps> {
+export default class StarRating extends React.PureComponent<StarRatingProps> {
   getIconName(level: number) {
     const { rating } = this.props;
     const name = rating >= level ? "star" : "star-outline";

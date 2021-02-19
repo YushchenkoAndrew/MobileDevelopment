@@ -8,7 +8,7 @@ interface TextInfoProps {
   styleInfo?: object;
 }
 
-export default class TextInfo extends React.Component<TextInfoProps> {
+export default class TextInfo extends React.PureComponent<TextInfoProps> {
   render() {
     return (
       <View style={styles.container}>
