@@ -1,10 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp } from "@react-navigation/native";
-import { Assets, createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
+import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
-import { DeviceEventEmitter, ScrollView, StatusBar, StyleSheet, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, ScrollView, StatusBar, View } from "react-native";
 import { FloatingAction } from "react-native-floating-action";
-import { BookCover, BookId, BookInfo } from "../../assets/index";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import Assets, { BookCover, BookId, BookInfo } from "../../assets/index";
 import BookCard from "../BookCard";
 import AddBook from "./AddBookScreen";
 import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
@@ -49,19 +50,11 @@ export type Book = {
 };
 
 export class LibraryScreen extends React.PureComponent<LibraryScreenProps> {
-  // books: Book[];
   state: { books: Book[] };
   unsubscribe: ((() => void) | undefined)[] = [];
 
   constructor(props: LibraryScreenProps) {
     super(props);
-    // this.state = { books: [], refresh: false };
-    // this.books = require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
-    //   key: `${key}`,
-    //   ...item,
-    //   isbn13: BookId.indexOf(item.isbn13) != -1 ? item.isbn13 : undefined,
-    //   image: item.image?.split(".")?.[0] || undefined,
-    // }));
     this.state = {
       books: require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
         key: `${key}`,
@@ -72,7 +65,6 @@ export class LibraryScreen extends React.PureComponent<LibraryScreenProps> {
     };
 
     DeviceEventEmitter.addListener("Library.addBook", (book: Book) => this.setState({ books: [...this.state.books, book] }));
-    // DeviceEventEmitter.addListener("Library.navigate", (isbn13: BookInfo) => this.props.navigation.navigate("BookInfo", Assets.BookInfo[isbn13]));
   }
 
   componentDidMount() {
@@ -106,15 +98,6 @@ export class LibraryScreen extends React.PureComponent<LibraryScreenProps> {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  components: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
 
 const actions = [
   {

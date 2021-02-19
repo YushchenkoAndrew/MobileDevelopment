@@ -11,8 +11,6 @@ export default class BookCard extends React.PureComponent<BookCardProps> {
   render() {
     const { item } = this.props;
     return (
-      // <View style={{ flex: 1 }}>
-      // <TouchableOpacity onPress={() => item.isbn13 && DeviceEventEmitter.emit("Library.navigate", item.isbn13)}>
       <View style={styles.item}>
         <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Assets.BookCover[item.image]} style={styles.image} />}</View>
         <View style={styles.information}>
@@ -21,8 +19,6 @@ export default class BookCard extends React.PureComponent<BookCardProps> {
           <Text style={styles.price}>{item.price}</Text>
         </View>
       </View>
-      // </TouchableOpacity>
-      // </View>
     );
   }
 }

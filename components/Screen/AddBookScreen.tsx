@@ -17,12 +17,6 @@ export default class AddBook extends React.Component<AddBookProps> {
 
   constructor(props: AddBookProps) {
     super(props);
-
-    // React.useLayoutEffect(() => {
-    //   this.props.navigation.setOptions({
-    //     books: () => console.log("WHat")
-    //   })
-    // }, [this.props.navigation, this])
   }
 
   componentDidMount() {
