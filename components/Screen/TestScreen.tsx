@@ -8,7 +8,7 @@ interface TestScreenProps {
   navigation?: BottomTabNavigationProp<ParamList>;
 }
 
-export default class TestScreen extends React.Component<TestScreenProps> {
+export default class TestScreen extends React.PureComponent<TestScreenProps> {
   state = { count: 0, date: new Date() };
   timer: NodeJS.Timeout | null = null;
 
