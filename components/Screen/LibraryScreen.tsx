@@ -1,10 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp } from "@react-navigation/native";
-import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
+import { Assets, createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
-import { DeviceEventEmitter, FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, ScrollView, StatusBar, StyleSheet, TouchableOpacity, View } from "react-native";
 import { FloatingAction } from "react-native-floating-action";
-import Assets, { BookCover, BookId, BookInfo } from "../../assets/index";
+import { BookCover, BookId, BookInfo } from "../../assets/index";
+import BookCard from "../BookCard";
 import AddBook from "./AddBookScreen";
 import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
 
@@ -47,12 +48,20 @@ export type Book = {
   image?: BookCover;
 };
 
-export class LibraryScreen extends React.Component<LibraryScreenProps> {
+export class LibraryScreen extends React.PureComponent<LibraryScreenProps> {
+  // books: Book[];
   state: { books: Book[] };
   unsubscribe: ((() => void) | undefined)[] = [];
 
   constructor(props: LibraryScreenProps) {
     super(props);
+    // this.state = { books: [], refresh: false };
+    // this.books = require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
+    //   key: `${key}`,
+    //   ...item,
+    //   isbn13: BookId.indexOf(item.isbn13) != -1 ? item.isbn13 : undefined,
+    //   image: item.image?.split(".")?.[0] || undefined,
+    // }));
     this.state = {
       books: require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
         key: `${key}`,
@@ -63,6 +72,7 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
     };
 
     DeviceEventEmitter.addListener("Library.addBook", (book: Book) => this.setState({ books: [...this.state.books, book] }));
+    // DeviceEventEmitter.addListener("Library.navigate", (isbn13: BookInfo) => this.props.navigation.navigate("BookInfo", Assets.BookInfo[isbn13]));
   }
 
   componentDidMount() {
@@ -78,31 +88,18 @@ export class LibraryScreen extends React.Component<LibraryScreenProps> {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: "#e9eaef" }}>
-        <FlatList
-          data={this.state.books}
-          contentContainerStyle={{ flexGrow: 1 }}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={{ flex: 1 }}
-                onPress={() => item.isbn13 && Assets.BookInfo[item.isbn13] && this.props.navigation?.navigate("BookInfo", Assets.BookInfo[item.isbn13])}
-              >
-                <View style={styles.item}>
-                  <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Assets.BookCover[item.image]} style={styles.image} />}</View>
-                  <View style={styles.information}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.description}>{item.subtitle}</Text>
-                    <Text style={styles.price}>{item.price}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-        />
+        <ScrollView>
+          {this.state.books.map((item, index) => (
+            <TouchableOpacity key={index} onPress={() => item.isbn13 && this.props.navigation.navigate("BookInfo", Assets.BookInfo[item.isbn13])}>
+              <BookCard item={item} />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         <FloatingAction
           actions={actions}
           color="#fee2e1"
-          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook", { key: this.state.books.length })}
+          onPressItem={(name) => name == "add" && this.props.navigation.navigate("AddBook", { key: 0 })}
           floatingIcon={<Ionicons name="settings-outline" size={24} color="#e93b2c" />}
         />
       </View>
@@ -116,61 +113,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-  },
-  item: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    alignItems: "center",
-    borderRadius: 5,
-
-    marginRight: 10,
-    marginLeft: 10,
-    marginTop: 2,
-    marginBottom: 3,
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-
-    elevation: 4,
-  },
-  information: {
-    flex: 1,
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignContent: "stretch",
-
-    padding: 20,
-
-    height: "100%",
-    width: "20%",
-  },
-
-  title: {
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  description: {
-    color: "gray",
-    fontStyle: "italic",
-  },
-  price: {
-    color: "#bf4040",
-    fontWeight: "bold",
-    alignSelf: "flex-end",
-  },
-
-  image: {
-    flex: 1,
-    resizeMode: "cover",
-    width: undefined,
-    height: undefined,
   },
 });
 
