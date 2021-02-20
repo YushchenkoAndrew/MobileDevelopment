@@ -31,7 +31,7 @@ export default class AddBook extends React.Component<AddBookProps> {
 
   getBookElements(key: number): Book {
     return {
-      key: `${key}`,
+      key,
       title: this.state.title,
       subtitle: this.state.subtitle,
       price: "$" + this.state.price,
