@@ -10,7 +10,7 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
   render() {
     return (
       <View style={styles.container}>
-        <ScrollView style={{ flexWrap: "wrap", flexDirection: "row" }} horizontal>
+        <ScrollView contentContainerStyle={{ flexWrap: "wrap", flexDirection: "row" }}>
           {this.state.images.map((image, index) => (
             <View key={index} style={styles.box} />
           ))}
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
 
   box: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: "powderblue",
 
     alignSelf: "flex-start",
