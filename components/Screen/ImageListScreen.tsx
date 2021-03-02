@@ -1,19 +1,23 @@
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
-import { Button, Dimensions, StyleSheet, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { Dimensions, Image, StyleSheet, View } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("screen");
 
 export interface ImageListScreenProps {}
 
 export default class ImageListScreen extends React.PureComponent<ImageListScreenProps> {
-  state = { images: new Array(7).fill(0), grid: [], orientation: ScreenOrientation.Orientation.UNKNOWN };
+  state = { images: [], grid: [], permission: false };
   size = (width < height ? width : height) / 3;
   index = 0;
 
   componentDidMount() {
     ScreenOrientation.addOrientationChangeListener((rotationEvent) => this.updateOrientation(rotationEvent.orientationInfo.orientation));
+
+    ImagePicker.requestMediaLibraryPermissionsAsync().then((state) => this.setState({ ...this.state, permission: state.granted }));
   }
 
   componentWillUnmount() {
@@ -25,33 +29,34 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
 
     this.setState({
       ...this.state,
-      grid: this.state.grid.map(({ id, item }) => {
+      grid: this.state.grid.map(({ id, uri, item }) => {
         switch (id % 9) {
           case 4:
-            return { id, item: React.cloneElement(item, { style: { ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 } }) };
+            return { id, uri, item: React.cloneElement(item, { style: { ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 } }) };
 
           case 5:
             return {
               id,
+              uri,
               item: (
                 <View key={id} style={{ flexDirection: "row" }}>
                   <View style={{ flexDirection: "column" }}>
-                    <View style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} />
-                    <View style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} />
+                    <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri: uri[0] }} />
+                    <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri: uri[2] }} />
                   </View>
-                  <View style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} />
+                  <Image style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} source={{ uri: uri[1] }} />
                 </View>
               ),
             };
 
           default:
-            return { id, item: React.cloneElement(item, { style: { ...styles.box, width: this.size - 5, height: this.size - 5 } }) };
+            return { id, uri, item: React.cloneElement(item, { style: { ...styles.box, width: this.size - 5, height: this.size - 5 } }) };
         }
       }),
     });
   }
 
-  next() {
+  next(uri: string) {
     const { grid } = this.state;
 
     switch (this.index++ % 9) {
@@ -60,25 +65,31 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
           ...this.state,
           grid: [
             ...grid,
-            { id: this.index - 1, item: <View key={this.index} style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} /> },
+            {
+              id: this.index - 1,
+              uri,
+              item: <Image key={this.index} style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} source={{ uri }} />,
+            },
           ],
         });
         break;
 
       case 5:
+        let prev = grid.slice(-2).map(({ uri }) => uri);
         this.setState({
           ...this.state,
           grid: [
             ...grid.slice(0, -2),
             {
               id: this.index - 1,
+              uri: [...prev, uri],
               item: (
                 <View key={this.index} style={{ flexDirection: "row" }}>
                   <View style={{ flexDirection: "column" }}>
-                    <View style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} />
-                    <View style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} />
+                    <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri: prev[0] }} />
+                    <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri }} />
                   </View>
-                  <View style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} />
+                  <Image style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} source={{ uri: prev[1] }} />
                 </View>
               ),
             },
@@ -89,7 +100,14 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
       default:
         this.setState({
           ...this.state,
-          grid: [...grid, { id: this.index - 1, item: <View key={this.index} style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} /> }],
+          grid: [
+            ...grid,
+            {
+              id: this.index - 1,
+              uri,
+              item: <Image key={this.index} style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri }} />,
+            },
+          ],
         });
     }
   }
@@ -97,8 +115,20 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() =>
+              this.state.permission &&
+              ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                quality: 1,
+              }).then((result) => !result.cancelled && this.next(result.uri))
+            }
+          >
+            <Ionicons name="add-outline" size={32} color="black" style={{ marginTop: 18, marginRight: 15 }} />
+          </TouchableOpacity>
+        </View>
         <ScrollView contentContainerStyle={{ flexWrap: "wrap", flexDirection: "row" }}>{this.state.grid.map(({ item }) => item)}</ScrollView>
-        <Button title="Press" onPress={() => this.next()} />
       </View>
     );
   }
@@ -109,9 +139,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     // alignItems: "center",
-    justifyContent: "center",
-
-    marginTop: 25,
+    // justifyContent: "center",
   },
 
   box: {
@@ -121,5 +149,24 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     justifyContent: "flex-start",
     margin: 2,
+  },
+
+  header: {
+    // flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "flex-end",
+    justifyContent: "center",
+
+    height: 80,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
 });
