@@ -2,7 +2,6 @@ import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
-import Assets, { BookCover } from "../../assets/index";
 import StarRating from "../StarRating";
 import TextInfo from "../TextInfo";
 import { ParamList } from "./LibraryScreen";
@@ -29,12 +28,12 @@ export type BookInfoType = {
 export default class BookInfoScreen extends React.Component<BookInfoScreenProps> {
   render() {
     const { title, subtitle, desc, authors, publisher, pages, year, rating } = this.props.route.params;
-    const image = (this.props.route.params.image?.split(".")?.[0] as BookCover) || null;
+    const image = this.props.route.params.image || null;
     return (
       <View style={{ backgroundColor: "#fff" }}>
         <ScrollView style={styles.container}>
           <View style={styles.detailsView}>
-            <View style={{ width: 180, height: 200 }}>{image && <Image source={Assets.BookCover[image]} style={styles.image} />}</View>
+            <View style={{ width: 180, height: 200 }}>{image && <Image source={{ uri: image }} style={styles.image} />}</View>
             <View style={styles.details}>
               <TextInfo name="Page" info={pages} />
               <TextInfo name="Year" info={year} />

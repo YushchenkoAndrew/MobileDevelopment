@@ -4,18 +4,35 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import Config from "../../assets/config";
 
 const { width, height } = Dimensions.get("screen");
+
+const API_KEY = Config.API_KEY;
+const REQUEST = "night+city";
+const COUNT = 27;
+
+const reqHeader = {
+  method: "GET",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+};
 
 export interface ImageListScreenProps {}
 
 export default class ImageListScreen extends React.PureComponent<ImageListScreenProps> {
-  state = { images: [], grid: [], permission: false };
+  state = { grid: [], permission: false };
   size = (width < height ? width : height) / 3;
   index = 0;
 
   componentDidMount() {
     ScreenOrientation.addOrientationChangeListener((rotationEvent) => this.updateOrientation(rotationEvent.orientationInfo.orientation));
+
+    fetch(`https://pixabay.com/api/?key=${API_KEY}&q=${REQUEST}&image_type=photo&per_page=${COUNT}`, reqHeader)
+      .then((res) => res.json())
+      .then((json) => json.hits.map((item: { largeImageURL: string }) => this.next(item.largeImageURL)));
 
     ImagePicker.requestMediaLibraryPermissionsAsync().then((state) => this.setState({ ...this.state, permission: state.granted }));
   }
@@ -87,6 +104,7 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
                 <View key={this.index} style={{ flexDirection: "row" }}>
                   <View style={{ flexDirection: "column" }}>
                     <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri: prev[0] }} />
+                    {/* <ActivityIndicator style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} color="#00f" /> */}
                     <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri }} />
                   </View>
                   <Image style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} source={{ uri: prev[1] }} />
@@ -144,7 +162,7 @@ const styles = StyleSheet.create({
 
   box: {
     // flex: 2,
-    backgroundColor: "powderblue",
+    // backgroundColor: "powderblue",
 
     alignSelf: "flex-start",
     justifyContent: "flex-start",

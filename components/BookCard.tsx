@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import Assets from "../assets/index";
 import { Book } from "./Screen/LibraryScreen";
 
 interface BookCardProps {
@@ -12,7 +11,7 @@ export default class BookCard extends React.PureComponent<BookCardProps> {
     const { item } = this.props;
     return (
       <View style={styles.item}>
-        <View style={{ width: 150, height: 150 }}>{item.image && <Image source={Assets.BookCover[item.image]} style={styles.image} />}</View>
+        <View style={{ width: 150, height: 150 }}>{item.image && <Image source={{ uri: item.image }} style={styles.image} />}</View>
         <View style={styles.information}>
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.description}>{item.subtitle}</Text>

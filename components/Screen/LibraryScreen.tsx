@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { RouteProp } from "@react-navigation/native";
 import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
 import * as React from "react";
-import { DeviceEventEmitter, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, DeviceEventEmitter, ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SearchBar } from "react-native-elements";
 import { FloatingAction } from "react-native-floating-action";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import Assets, { BookCover, BookId, BookInfo } from "../../assets/index";
+import { BookInfo } from "../../assets/index";
 import BookCard from "../BookCard";
 import AddBook from "./AddBookScreen";
 import BookInfoScreen, { BookInfoType } from "./BookInfoScreen";
@@ -19,6 +19,14 @@ export type ParamList = {
 };
 
 export const Stack = createStackNavigator<ParamList>();
+
+const reqHeader = {
+  method: "GET",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+};
 
 export default function Library() {
   return (
@@ -76,29 +84,31 @@ export type Book = {
   subtitle: string;
   isbn13?: BookInfo;
   price: string;
-  image?: BookCover;
+  image?: string;
 };
 
 export class LibraryScreen extends React.PureComponent<LibraryScreenProps> {
-  state: { books: Book[]; filter: string };
+  state: { books: Book[]; filter: string; loading: boolean };
   unsubscribe: ((() => void) | undefined)[] = [];
   uniqueKey: number;
 
   constructor(props: LibraryScreenProps) {
     super(props);
-    this.state = {
-      books: require("../../assets/BooksList.json").books.map((item: any, key: number) => ({
-        key,
-        ...item,
-        isbn13: BookId.indexOf(item.isbn13) != -1 ? item.isbn13 : undefined,
-        image: item.image?.split(".")?.[0] || undefined,
-      })),
-      filter: "",
-    };
+    this.state = { books: [], filter: "", loading: false };
     this.uniqueKey = this.state.books.length;
 
     DeviceEventEmitter.addListener("Library.addBook", (book: Book) => this.setState({ books: [...this.state.books, book] }));
-    DeviceEventEmitter.addListener("Library.onSearch", (filter: string) => this.setState({ ...this.state.books, filter }));
+    DeviceEventEmitter.addListener("Library.onSearch", (filter: string) => {
+      this.setState({ ...this.state, filter, loading: true });
+      if (filter.length > 2)
+        fetch(`https://api.itbook.store/1.0/search/${filter}?page=1`, reqHeader)
+          .then((res) => res.json())
+          .then((json) =>
+            this.setState({ ...this.state, loading: false, books: json.books.map((item: object, key: string) => ({ key: Number(key), ...item } as Book)) })
+          )
+          .catch((err) => console.log(err));
+      else this.setState({ ...this.state, loading: false, books: [] });
+    });
   }
 
   componentDidMount() {
@@ -136,13 +146,26 @@ export class LibraryScreen extends React.PureComponent<LibraryScreenProps> {
   }
 
   renderBookList() {
-    let bookList = this.state.books.filter(({ title }) => title.includes(this.state.filter));
+    if (this.state.loading)
+      return (
+        <View style={styles.noResultContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
 
-    return bookList.length ? (
+    return this.state.books.length ? (
       <ScrollView>
-        {bookList.map((item, index) => (
+        {this.state.books.map((item, index) => (
           <Swipeable key={item.key} friction={2} renderRightActions={() => this.rightAction(index)}>
-            <TouchableOpacity onPress={() => item.isbn13 && this.props.navigation.navigate("BookInfo", Assets.BookInfo[item.isbn13])}>
+            <TouchableOpacity
+              onPress={() =>
+                item.isbn13 &&
+                fetch(`https://api.itbook.store/1.0/books/${item.isbn13}`)
+                  .then((res) => res.json())
+                  .then((json) => this.props.navigation.navigate("BookInfo", json))
+                  .catch((err) => console.log(err))
+              }
+            >
               <BookCard item={item} />
             </TouchableOpacity>
           </Swipeable>
