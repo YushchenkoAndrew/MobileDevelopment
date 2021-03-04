@@ -47,7 +47,7 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
     this.setState({
       ...this.state,
       grid: this.state.grid.map(({ id, uri, item }) => {
-        switch (id % 9) {
+        switch ((id - 1) % 9) {
           case 4:
             return { id, uri, item: React.cloneElement(item, { style: { ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 } }) };
 
@@ -83,7 +83,7 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
           grid: [
             ...grid,
             {
-              id: this.index - 1,
+              id: this.index,
               uri,
               item: <Image key={this.index} style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} source={{ uri }} />,
             },
@@ -98,13 +98,12 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
           grid: [
             ...grid.slice(0, -2),
             {
-              id: this.index - 1,
+              id: this.index,
               uri: [...prev, uri],
               item: (
                 <View key={this.index} style={{ flexDirection: "row" }}>
                   <View style={{ flexDirection: "column" }}>
                     <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri: prev[0] }} />
-                    {/* <ActivityIndicator style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} color="#00f" /> */}
                     <Image style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri }} />
                   </View>
                   <Image style={{ ...styles.box, width: this.size * 2 - 5, height: this.size * 2 - 5 }} source={{ uri: prev[1] }} />
@@ -121,8 +120,9 @@ export default class ImageListScreen extends React.PureComponent<ImageListScreen
           grid: [
             ...grid,
             {
-              id: this.index - 1,
+              id: this.index,
               uri,
+              loading: true,
               item: <Image key={this.index} style={{ ...styles.box, width: this.size - 5, height: this.size - 5 }} source={{ uri }} />,
             },
           ],
